@@ -1,4 +1,4 @@
-import re, requests 
+import re, requests, sqlite3
 from bs4 import BeautifulSoup
 from datetime import date
 
@@ -10,7 +10,7 @@ soup = BeautifulSoup(r.content, 'html5lib')
 organizations = soup.find_all('div', {'class': 'organization'})
 
 for org in organizations:
-    organization_name = org.find_all('h3')[0].text
+    organization_name = org.find_all('h3')[0].text.strip()
     # remove multiple spaces from org names
     # this converts something like UNITE HERE (Local                 1) to UNITE HERE (Local 1)
     organization_name = re.sub(' +', ' ', organization_name)
@@ -28,4 +28,6 @@ for org in organizations:
         job_posted_string_month = int(job_posted_string.group(2))
         job_posted_string_year = int(job_posted_string.group(3))
         job_posted_date = date(job_posted_string_year, job_posted_string_day, job_posted_string_day)
-        print(job_posted_date)
+        
+        job_location = re.search('\(Posted: .*\)(.+)', job_text).group(1).strip()
+        print(f'{job_title} with {organization_name} in {job_location} on {job_posted_date}')
