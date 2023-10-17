@@ -2,6 +2,8 @@ import re, requests, sqlite3
 from bs4 import BeautifulSoup
 from datetime import date
 
+con = sqlite3.connect('unionjobs.db')
+
 url = 'https://www.unionjobs.com/staffing_list.php'
 r = requests.get(url)
 
@@ -19,6 +21,11 @@ for org in organizations:
         job_text = job.text.strip()
 
         job_link = job.find('a')['href']
+        
+        # Extract Union Jobs ID
+        job_id_search = re.search('id=(.*)', job_link)
+        job_id = int(job_id_search.group(1))
+        
         job_link = f'https://www.unionjobs.com{job_link}'
         
         job_title = job.find('a').text.strip()
@@ -30,4 +37,4 @@ for org in organizations:
         job_posted_date = date(job_posted_string_year, job_posted_string_day, job_posted_string_day)
         
         job_location = re.search('\(Posted: .*\)(.+)', job_text).group(1).strip()
-        print(f'{job_title} with {organization_name} in {job_location} on {job_posted_date}')
+        # print(f'{job_title} with {organization_name} in {job_location} on {job_posted_date}')

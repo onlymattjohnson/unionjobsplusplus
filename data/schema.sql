@@ -6,6 +6,7 @@ CREATE TABLE employer (
 
 CREATE TABLE job (
     id INTEGER PRIMARY KEY,
+    union_jobs_id INTEGER,
     employer_id INTEGER,
     job_title TEXT NOT NULL,
     job_location TEXT,
