@@ -18,6 +18,21 @@ def create_connection(db_file):
 
     return con
 
+def check_employer(con, employer_name):
+    """
+    Checks if an employer already exists
+    :param con:
+    :param employer_name:
+    :return: employer id or None
+    """
+    sql = '''
+        SELECT id FROM employer where employer_name=?
+    '''
+    cur = con.cursor()
+    cur.execute(sql, employer_name)
+    
+    return cur.fetchone()
+
 def load_employer(con, employer_name):
     """
     Loads an employer to the database
@@ -25,17 +40,24 @@ def load_employer(con, employer_name):
     :param employer_name:
     :return: employer id
     """
-
+    employer_name = (employer_name,)
     print(f'Attempting to load {employer_name}')
 
-    sql = ''' INSERT INTO employer(employer_name)
-              VALUES (?)'''
+    row_id = check_employer(con, employer_name)
+    
+    if not row_id:
+        sql = ''' INSERT INTO employer(employer_name)
+                VALUES (?)'''
 
-    cur = con.cursor()
-    cur.execute(sql, (employer_name,))
-    con.commit()
+        cur = con.cursor()
+        cur.execute(sql, employer_name)
+        con.commit()
 
-    return cur.lastrowid
+        row_id = cur.lastrowid
+    else:
+        print(f'Employer already found at {row_id}')
+
+    return row_id
 
 if __name__ == '__main__':
     db_file = 'unionjobs.db'
