@@ -26,33 +26,41 @@ def load_employer(con, employer_name):
     :return: employer id
     """
 
+    print(f'Attempting to load {employer_name}')
+
     sql = ''' INSERT INTO employer(employer_name)
               VALUES (?)'''
 
     cur = con.cursor()
-    cur.execute(sql, employer_name)
+    cur.execute(sql, (employer_name,))
     con.commit()
 
     return cur.lastrowid
 
 if __name__ == '__main__':
-    con = create_connection('unionjobs.db')
+    db_file = 'unionjobs.db'
+
+    con = create_connection(db_file)
+    print(f'Database connection with {db_file} successfully loaded')
 
     url = 'https://www.unionjobs.com/staffing_list.php'
     r = requests.get(url)
 
     soup = BeautifulSoup(r.content, 'html5lib')
 
-    employers = soup.find_all('div', {'class': 'employer'})
+    employers = soup.find_all('div', {'class': 'organization'})
 
+    print(f'Found {len(employers)} Employers')
     for org in employers:
         employer_name = org.find_all('h3')[0].text.strip()
         # remove multiple spaces from org names
         # this converts something like UNITE HERE (Local                 1) to UNITE HERE (Local 1)
         employer_name = re.sub(' +', ' ', employer_name)
+
         with con:
-            load_employer(con, employer_name)
-        
+            r = load_employer(con, employer_name)
+            print(f'{r} loaded')
+
         jobs = org.find_all('li')
         for job in jobs:
             job_text = job.text.strip()
