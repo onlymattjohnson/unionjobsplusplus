@@ -2,7 +2,31 @@ import re, requests, sqlite3
 from bs4 import BeautifulSoup
 from datetime import date
 
-con = sqlite3.connect('unionjobs.db')
+
+def create_connection(db_file):
+    """
+    Creates a connection to the SQLite file
+    :param db_file: The database file
+    :return: A connection object or None
+    """
+
+    con = None
+    try:
+        con = sqlite3.connect(db_file)
+    except sqlite3.Error as e:
+        print(e)
+
+    return con
+
+def load_organization(organization_name):
+    """
+    Loads an organization to the database
+    """
+
+    return None
+
+
+con = create_connection('unionjobs.db')
 
 url = 'https://www.unionjobs.com/staffing_list.php'
 r = requests.get(url)
